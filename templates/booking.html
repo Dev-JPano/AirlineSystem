@@ -1,0 +1,206 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-hero">
+  <h1><i class="fas fa-ticket-alt"></i> Online Check-in</h1>
+  <p>Complete your check-in in just a few steps</p>
+</div>
+
+<section class="section">
+  <div class="container narrow">
+
+    <div class="steps-bar">
+      <div class="step active"><span>1</span> Passenger Info</div>
+      <div class="step-line"></div>
+      <div class="step"><span>2</span> Flight Details</div>
+      <div class="step-line"></div>
+      <div class="step"><span>3</span> Confirmation</div>
+    </div>
+
+    <div class="card form-card" id="bookingForm">
+      <h2 class="form-title"><i class="fas fa-user"></i> Passenger & Flight Details</h2>
+      <form id="checkInForm" novalidate>
+
+        <div class="form-section-label">Passenger Information</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Passenger Full Name <span class="req">*</span></label>
+            <input type="text" id="passenger_name" placeholder="e.g. Juan dela Cruz" required/>
+            <span class="err" id="err_passenger_name"></span>
+          </div>
+          <div class="form-group">
+            <label>Customer ID (optional)</label>
+            <input type="text" id="customer_id" placeholder="e.g. CUST-001"/>
+          </div>
+        </div>
+
+        <div class="form-section-label">Flight Information</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Flight Number <span class="req">*</span></label>
+            <input type="text" id="flight" placeholder="e.g. 5J 621" required/>
+            <span class="err" id="err_flight"></span>
+          </div>
+          <div class="form-group">
+            <label>Route <span class="req">*</span></label>
+            <select id="route" required>
+              <option value="">-- Select Route --</option>
+              <option>Manila (MNL) → Cebu (CEB)</option>
+              <option>Manila (MNL) → Davao (DVO)</option>
+              <option>Manila (MNL) → Iloilo (ILO)</option>
+              <option>Manila (MNL) → Palawan (PPS)</option>
+              <option>Manila (MNL) → Zamboanga (ZAM)</option>
+              <option>Manila (MNL) → Bacolod (BCD)</option>
+              <option>Manila (MNL) → Cagayan de Oro (CGY)</option>
+              <option>Manila (MNL) → Tacloban (TAC)</option>
+              <option>Cebu (CEB) → Davao (DVO)</option>
+              <option>Cebu (CEB) → Bacolod (BCD)</option>
+            </select>
+            <span class="err" id="err_route"></span>
+          </div>
+          <div class="form-group">
+            <label>Departure Date & Time <span class="req">*</span></label>
+            <input type="datetime-local" id="departure" required/>
+            <span class="err" id="err_departure"></span>
+          </div>
+        </div>
+
+        <div class="form-section-label">Seat & Service</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Seat Number <span class="req">*</span></label>
+            <input type="text" id="seat" placeholder="e.g. 12A" required/>
+            <span class="err" id="err_seat"></span>
+          </div>
+          <div class="form-group">
+            <label>Seat Class <span class="req">*</span></label>
+            <select id="seat_class" required>
+              <option value="">-- Select Class --</option>
+              <option>Economy</option>
+              <option>Economy Plus</option>
+              <option>Business</option>
+            </select>
+            <span class="err" id="err_seat_class"></span>
+          </div>
+          <div class="form-group">
+            <label>Service Type <span class="req">*</span></label>
+            <select id="service" required>
+              <option value="">-- Select Service --</option>
+              <option>Standard Check-in</option>
+              <option>SkyLink Plus</option>
+              <option>Special Assistance</option>
+              <option>Unaccompanied Minor</option>
+            </select>
+            <span class="err" id="err_service"></span>
+          </div>
+          <div class="form-group">
+            <label>Checked Bags <span class="req">*</span></label>
+            <select id="bags" required>
+              <option value="">-- Select --</option>
+              <option>0</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+            <span class="err" id="err_bags"></span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary btn-full" id="submitBooking">
+            <i class="fas fa-check-circle"></i> Confirm Check-in
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Confirmation Card (hidden until success) -->
+    <div class="card confirm-card hidden" id="confirmCard">
+      <div class="confirm-icon"><i class="fas fa-check-circle"></i></div>
+      <h2>Check-in Successful!</h2>
+      <p>Your boarding pass has been issued. Have a safe flight!</p>
+      <div class="boarding-pass" id="boardingPassContent"></div>
+      <button class="btn-outline" onclick="resetForm()"><i class="fas fa-redo"></i> New Check-in</button>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById("checkInForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+  clearErrors();
+  const btn = document.getElementById("submitBooking");
+
+  const fields = {
+    passenger_name: document.getElementById("passenger_name").value.trim(),
+    customer_id: document.getElementById("customer_id").value.trim() || "GUEST",
+    flight: document.getElementById("flight").value.trim(),
+    route: document.getElementById("route").value.trim(),
+    departure: document.getElementById("departure").value.trim(),
+    seat: document.getElementById("seat").value.trim(),
+    seat_class: document.getElementById("seat_class").value.trim(),
+    service: document.getElementById("service").value.trim(),
+    bags: document.getElementById("bags").value.trim(),
+  };
+
+  let valid = true;
+  ["passenger_name","flight","route","departure","seat","seat_class","service","bags"].forEach(f=>{
+    if(!fields[f]){ showErr("err_"+f,"This field is required."); valid=false; }
+  });
+  if(!valid) return;
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+  const res = await fetch("/api/bookings", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(fields)
+  });
+  const data = await res.json();
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Check-in';
+
+  if(data.success){
+    document.getElementById("bookingForm").classList.add("hidden");
+    const cc = document.getElementById("confirmCard");
+    cc.classList.remove("hidden");
+    document.getElementById("boardingPassContent").innerHTML = `
+      <div class="bp-row"><span>Booking ID</span><strong>${data.id}</strong></div>
+      <div class="bp-row"><span>Passenger</span><strong>${fields.passenger_name}</strong></div>
+      <div class="bp-row"><span>Flight</span><strong>${fields.flight}</strong></div>
+      <div class="bp-row"><span>Route</span><strong>${fields.route}</strong></div>
+      <div class="bp-row"><span>Departure</span><strong>${fields.departure}</strong></div>
+      <div class="bp-row"><span>Seat</span><strong>${fields.seat} — ${fields.seat_class}</strong></div>
+      <div class="bp-row"><span>Checked Bags</span><strong>${fields.bags}</strong></div>
+      <div class="bp-row"><span>Status</span><strong class="status-badge confirmed">Confirmed</strong></div>
+    `;
+    // update steps
+    document.querySelectorAll(".step").forEach((s,i)=>s.classList.toggle("active",i<=2));
+  } else {
+    showToast(data.error || "Submission failed.", "error");
+  }
+});
+
+function resetForm(){
+  document.getElementById("checkInForm").reset();
+  document.getElementById("confirmCard").classList.add("hidden");
+  document.getElementById("bookingForm").classList.remove("hidden");
+  document.querySelectorAll(".step").forEach((s,i)=>s.classList.toggle("active",i===0));
+}
+function clearErrors(){
+  document.querySelectorAll(".err").forEach(e=>e.textContent="");
+}
+function showErr(id,msg){
+  const el = document.getElementById(id);
+  if(el) el.textContent = msg;
+}
+</script>
+{% endblock %}
+```plaintext
+
+---

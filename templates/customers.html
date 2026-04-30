@@ -1,0 +1,138 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-hero">
+  <h1><i class="fas fa-users"></i> Passenger List</h1>
+  <p>All registered SkyLink passengers</p>
+</div>
+
+<section class="section">
+  <div class="container">
+
+    <div class="table-toolbar">
+      <input type="text" id="custSearch" placeholder="🔍 Search by name, email, ID..." class="search-input"/>
+      <a href="{{ url_for('register') }}" class="btn-primary"><i class="fas fa-user-plus"></i> Add Passenger</a>
+    </div>
+
+    <div class="table-wrap">
+      <table id="custTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Full Name</th><th>Email</th>
+            <th>Contact</th><th>Passport / ID</th><th>Registered</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="custBody">
+          <tr><td colspan="7" class="loading-row"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<!-- Edit Modal -->
+<div class="modal-backdrop hidden" id="editCustModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fas fa-edit"></i> Edit Passenger</h3>
+      <button class="modal-close" onclick="closeModal('editCustModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit_cust_id"/>
+      <div class="form-group"><label>Full Name</label><input type="text" id="edit_cust_name"/></div>
+      <div class="form-group"><label>Email</label><input type="email" id="edit_cust_email"/></div>
+      <div class="form-group"><label>Contact</label><input type="text" id="edit_cust_contact"/></div>
+      <div class="form-group"><label>Passport/ID</label><input type="text" id="edit_cust_passport"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('editCustModal')">Cancel</button>
+      <button class="btn-primary" onclick="saveCustomer()"><i class="fas fa-save"></i> Save Changes</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+let allCustomers = [];
+
+async function loadCustomers(){
+  const res = await fetch("/api/customers");
+  allCustomers = await res.json();
+  renderCustomers(allCustomers);
+}
+
+function renderCustomers(data){
+  const tbody = document.getElementById("custBody");
+  if(!data.length){
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-row">No passengers found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(c=>`
+    <tr>
+      <td><span class="id-badge">${c.id}</span></td>
+      <td>${c.name}</td>
+      <td>${c.email}</td>
+      <td>${c.contact}</td>
+      <td>${c.passport}</td>
+      <td>${c.registered}</td>
+      <td class="actions">
+        <button class="btn-icon blue" onclick="openEditCust('${c.id}','${c.name}','${c.email}','${c.contact}','${c.passport}')">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn-icon red" onclick="deleteCustomer('${c.id}','${c.name}')">
+          <i class="fas fa-trash"></i>
+        </button>
+      </td>
+    </tr>`).join("");
+}
+
+document.getElementById("custSearch").addEventListener("input", function(){
+  const q = this.value.toLowerCase();
+  renderCustomers(allCustomers.filter(c=>
+    c.name.toLowerCase().includes(q) ||
+    c.email.toLowerCase().includes(q) ||
+    c.id.toLowerCase().includes(q) ||
+    c.contact.toLowerCase().includes(q)
+  ));
+});
+
+function openEditCust(id,name,email,contact,passport){
+  document.getElementById("edit_cust_id").value=id;
+  document.getElementById("edit_cust_name").value=name;
+  document.getElementById("edit_cust_email").value=email;
+  document.getElementById("edit_cust_contact").value=contact;
+  document.getElementById("edit_cust_passport").value=passport;
+  document.getElementById("editCustModal").classList.remove("hidden");
+}
+
+async function saveCustomer(){
+  const id=document.getElementById("edit_cust_id").value;
+  const payload={
+    name: document.getElementById("edit_cust_name").value,
+    email: document.getElementById("edit_cust_email").value,
+    contact: document.getElementById("edit_cust_contact").value,
+    passport: document.getElementById("edit_cust_passport").value,
+  };
+  const res=await fetch(`/api/customers/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  const data=await res.json();
+  if(data.success){ showToast("Passenger updated.","success"); closeModal("editCustModal"); loadCustomers(); }
+  else showToast(data.error,"error");
+}
+
+async function deleteCustomer(id,name){
+  if(!confirm(`Delete passenger ${name}?`)) return;
+  const res=await fetch(`/api/customers/${id}`,{method:"DELETE"});
+  const data=await res.json();
+  if(data.success){ showToast("Passenger deleted.","success"); loadCustomers(); }
+  else showToast(data.error,"error");
+}
+
+function closeModal(id){ document.getElementById(id).classList.add("hidden"); }
+
+loadCustomers();
+setInterval(loadCustomers, 10000);
+</script>
+{% endblock %}

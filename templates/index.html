@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-tag"><i class="fas fa-map-marker-alt"></i> Philippines' Trusted Carrier</p>
+    <h1>Fly Smarter.<br/>Fly <span class="accent">SkyLink</span>.</h1>
+    <p class="hero-sub">Fast, easy online check-in for domestic and international flights. No queues, no hassle — just smooth skies ahead.</p>
+    <div class="hero-buttons">
+      <a href="{{ url_for('booking') }}" class="btn-primary"><i class="fas fa-ticket-alt"></i> Check-in Now</a>
+      <a href="{{ url_for('services') }}" class="btn-outline"><i class="fas fa-info-circle"></i> Our Services</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num">42+</span><span class="stat-label">Destinations</span></div>
+      <div class="stat"><span class="stat-num">500K+</span><span class="stat-label">Passengers</span></div>
+      <div class="stat"><span class="stat-num">98%</span><span class="stat-label">On-Time Rate</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section why">
+  <div class="container">
+    <div class="section-header">
+      <h2>Why Choose SkyLink?</h2>
+      <p>Experience the gold standard of Filipino air travel</p>
+    </div>
+    <div class="cards-grid">
+      <div class="card feature-card">
+        <div class="card-icon blue"><i class="fas fa-bolt"></i></div>
+        <h3>Quick Check-in</h3>
+        <p>Complete your online check-in in under 2 minutes. Select seats, add baggage, and get your boarding pass instantly.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="card-icon navy"><i class="fas fa-shield-alt"></i></div>
+        <h3>Safe & Reliable</h3>
+        <p>Our aircraft undergo rigorous safety checks. Your security and comfort is our highest priority on every flight.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="card-icon blue"><i class="fas fa-headset"></i></div>
+        <h3>24/7 Support</h3>
+        <p>Our Filipino customer service team is always ready to assist you anytime — before, during, and after your flight.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="card-icon navy"><i class="fas fa-peso-sign"></i></div>
+        <h3>Best Fares</h3>
+        <p>Enjoy unbeatable domestic fares with no hidden fees. Travel more for less with SkyLink's transparent pricing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section routes-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Popular Routes</h2>
+      <p>Top domestic destinations Filipinos love</p>
+    </div>
+    <div class="routes-grid">
+      <div class="route-card">
+        <div class="route-info">
+          <span class="route-from">MNL</span>
+          <i class="fas fa-plane route-icon"></i>
+          <span class="route-to">CEB</span>
+        </div>
+        <p>Manila → Cebu</p>
+        <span class="route-price">from ₱999</span>
+      </div>
+      <div class="route-card">
+        <div class="route-info">
+          <span class="route-from">MNL</span>
+          <i class="fas fa-plane route-icon"></i>
+          <span class="route-to">DVO</span>
+        </div>
+        <p>Manila → Davao</p>
+        <span class="route-price">from ₱1,299</span>
+      </div>
+      <div class="route-card">
+        <div class="route-info">
+          <span class="route-from">MNL</span>
+          <i class="fas fa-plane route-icon"></i>
+          <span class="route-to">ILO</span>
+        </div>
+        <p>Manila → Iloilo</p>
+        <span class="route-price">from ₱1,099</span>
+      </div>
+      <div class="route-card">
+        <div class="route-info">
+          <span class="route-from">CEB</span>
+          <i class="fas fa-plane route-icon"></i>
+          <span class="route-to">BCD</span>
+        </div>
+        <p>Cebu → Bacolod</p>
+        <span class="route-price">from ₱799</span>
+      </div>
+      <div class="route-card">
+        <div class="route-info">
+          <span class="route-from">MNL</span>
+          <i class="fas fa-plane route-icon"></i>
+          <span class="route-to">PPS</span>
+        </div>
+        <p>Manila → Palawan</p>
+        <span class="route-price">from ₱1,499</span>
+      </div>
+      <div class="route-card">
+        <div class="route-info">
+          <span class="route-from">MNL</span>
+          <i class="fas fa-plane route-icon"></i>
+          <span class="route-to">ZAM</span>
+        </div>
+        <p>Manila → Zamboanga</p>
+        <span class="route-price">from ₱1,599</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-banner">
+  <div class="cta-content">
+    <h2>Ready to take off?</h2>
+    <p>Register now and enjoy seamless online check-in for your next flight.</p>
+    <a href="{{ url_for('register') }}" class="btn-primary"><i class="fas fa-user-plus"></i> Create Account</a>
+  </div>
+</section>
+
+{% endblock %}
+```plaintext

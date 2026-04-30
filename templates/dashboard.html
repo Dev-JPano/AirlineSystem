@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-hero">
+  <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+  <p>SkyLink Airways — Operations Overview</p>
+</div>
+
+<section class="section">
+  <div class="container">
+
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-body">
+          <span class="stat-value">{{ total_customers }}</span>
+          <span class="stat-label">Total Passengers</span>
+        </div>
+      </div>
+      <div class="stat-card navy">
+        <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
+        <div class="stat-body">
+          <span class="stat-value">{{ total_bookings }}</span>
+          <span class="stat-label">Total Bookings</span>
+        </div>
+      </div>
+      <div class="stat-card teal">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-body">
+          <span class="stat-value">{{ confirmed }}</span>
+          <span class="stat-label">Confirmed</span>
+        </div>
+      </div>
+      <div class="stat-card slate">
+        <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+        <div class="stat-body">
+          <span class="stat-value">{{ processing }}</span>
+          <span class="stat-label">Processing</span>
+        </div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon"><i class="fas fa-plane-arrival"></i></div>
+        <div class="stat-body">
+          <span class="stat-value">{{ completed }}</span>
+          <span class="stat-label">Completed</span>
+        </div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-body">
+          <span class="stat-value">{{ cancelled }}</span>
+          <span class="stat-label">Cancelled</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-links">
+      <a href="{{ url_for('customers') }}" class="dash-link-card">
+        <i class="fas fa-users"></i>
+        <span>Manage Passengers</span>
+        <i class="fas fa-arrow-right arr"></i>
+      </a>
+      <a href="{{ url_for('bookings') }}" class="dash-link-card">
+        <i class="fas fa-list-alt"></i>
+        <span>Manage Bookings</span>
+        <i class="fas fa-arrow-right arr"></i>
+      </a>
+      <a href="{{ url_for('booking') }}" class="dash-link-card">
+        <i class="fas fa-ticket-alt"></i>
+        <span>New Check-in</span>
+        <i class="fas fa-arrow-right arr"></i>
+      </a>
+      <a href="{{ url_for('register') }}" class="dash-link-card">
+        <i class="fas fa-user-plus"></i>
+        <span>Register Passenger</span>
+        <i class="fas fa-arrow-right arr"></i>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

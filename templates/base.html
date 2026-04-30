@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SkyLink Airways Philippines</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <i class="fas fa-plane-departure"></i>
+    <span>SkyLink <strong>Airways</strong></span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint=='index' }}"><i class="fas fa-home"></i> Home</a></li>
+    <li><a href="{{ url_for('services') }}" class="{{ 'active' if request.endpoint=='services' }}"><i class="fas fa-concierge-bell"></i> Services</a></li>
+    <li><a href="{{ url_for('booking') }}" class="{{ 'active' if request.endpoint=='booking' }}"><i class="fas fa-ticket-alt"></i> Check-in</a></li>
+    <li><a href="{{ url_for('register') }}" class="{{ 'active' if request.endpoint=='register' }}"><i class="fas fa-user-plus"></i> Register</a></li>
+    {% if session.get('admin') %}
+    <li><a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint=='dashboard' }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+    <li><a href="{{ url_for('customers') }}" class="{{ 'active' if request.endpoint=='customers' }}"><i class="fas fa-users"></i> Passengers</a></li>
+    <li><a href="{{ url_for('bookings') }}" class="{{ 'active' if request.endpoint=='bookings' }}"><i class="fas fa-list-alt"></i> Bookings</a></li>
+    <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    {% else %}
+    <li><a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint=='login' }}"><i class="fas fa-lock"></i> Admin</a></li>
+    {% endif %}
+  </ul>
+  <button class="nav-toggle" id="navToggle"><i class="fas fa-bars"></i></button>
+</nav>
+
+<div class="page-content">
+  {% block content %}{% endblock %}
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span><i class="fas fa-plane"></i> SkyLink Airways Philippines &copy; 2026</span>
+    <span>Connecting Every Filipino to the Sky</span>
+  </div>
+</footer>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

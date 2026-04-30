@@ -1,0 +1,171 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-hero">
+  <h1><i class="fas fa-list-alt"></i> Booking List</h1>
+  <p>All flight check-ins and bookings</p>
+</div>
+
+<section class="section">
+  <div class="container">
+
+    <div class="table-toolbar">
+      <input type="text" id="bkSearch" placeholder="🔍 Search by ID, name, flight, route..." class="search-input"/>
+      <select id="bkFilter" class="filter-select">
+        <option value="">All Status</option>
+        <option>Confirmed</option>
+        <option>Processing</option>
+        <option>Completed</option>
+        <option>Cancelled</option>
+      </select>
+      <a href="{{ url_for('booking') }}" class="btn-primary"><i class="fas fa-plus"></i> New Check-in</a>
+    </div>
+
+    <div class="table-wrap">
+      <table id="bkTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Passenger</th><th>Flight</th><th>Route</th>
+            <th>Departure</th><th>Seat</th><th>Class</th><th>Bags</th>
+            <th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bkBody">
+          <tr><td colspan="10" class="loading-row"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<!-- Edit Booking Modal -->
+<div class="modal-backdrop hidden" id="editBkModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fas fa-edit"></i> Update Booking</h3>
+      <button class="modal-close" onclick="closeModal('editBkModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit_bk_id"/>
+      <div class="form-group"><label>Status</label>
+        <select id="edit_bk_status">
+          <option>Confirmed</option>
+          <option>Processing</option>
+          <option>Completed</option>
+          <option>Cancelled</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Seat</label><input type="text" id="edit_bk_seat"/></div>
+      <div class="form-group"><label>Checked Bags</label>
+        <select id="edit_bk_bags">
+          <option>0</option><option>1</option><option>2</option><option>3</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('editBkModal')">Cancel</button>
+      <button class="btn-primary" onclick="saveBooking()"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+let allBookings=[];
+
+async function loadBookings(){
+  const res=await fetch("/api/bookings");
+  allBookings=await res.json();
+  applyFilters();
+}
+
+function statusClass(s){
+  return ({Confirmed:"confirmed",Processing:"processing",Completed:"completed",Cancelled:"cancelled"})[s]||"";
+}
+
+function renderBookings(data){
+  const tbody=document.getElementById("bkBody");
+  if(!data.length){
+    tbody.innerHTML='<tr><td colspan="10" class="empty-row">No bookings found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=data.map(b=>`
+    <tr>
+      <td><span class="id-badge">${b.id}</span></td>
+      <td>${b.passenger_name}</td>
+      <td><strong>${b.flight}</strong></td>
+      <td>${b.route}</td>
+      <td>${b.departure}</td>
+      <td>${b.seat}</td>
+      <td>${b.seat_class}</td>
+      <td>${b.bags}</td>
+      <td><span class="status-badge ${statusClass(b.status)}">${b.status}</span></td>
+      <td class="actions">
+        <button class="btn-icon blue" onclick="openEditBk('${b.id}','${b.status}','${b.seat}','${b.bags}')">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn-icon red" onclick="deleteBooking('${b.id}')">
+          <i class="fas fa-trash"></i>
+        </button>
+      </td>
+    </tr>`).join("");
+}
+
+function applyFilters(){
+  const q=document.getElementById("bkSearch").value.toLowerCase();
+  const f=document.getElementById("bkFilter").value;
+  let filtered=allBookings;
+  if(q) filtered=filtered.filter(b=>
+    b.id.toLowerCase().includes(q)||
+    b.passenger_name.toLowerCase().includes(q)||
+    b.flight.toLowerCase().includes(q)||
+    b.route.toLowerCase().includes(q)
+  );
+  if(f) filtered=filtered.filter(b=>b.status===f);
+  renderBookings(filtered);
+}
+
+document.getElementById("bkSearch").addEventListener("input",applyFilters);
+document.getElementById("bkFilter").addEventListener("change",applyFilters);
+
+function openEditBk(id,status,seat,bags){
+  document.getElementById("edit_bk_id").value=id;
+  document.getElementById("edit_bk_status").value=status;
+  document.getElementById("edit_bk_seat").value=seat;
+  document.getElementById("edit_bk_bags").value=bags;
+  document.getElementById("editBkModal").classList.remove("hidden");
+}
+
+async function saveBooking(){
+  const id=document.getElementById("edit_bk_id").value;
+  const payload={
+    status:document.getElementById("edit_bk_status").value,
+    seat:document.getElementById("edit_bk_seat").value,
+    bags:document.getElementById("edit_bk_bags").value,
+  };
+  const res=await fetch(`/api/bookings/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  const data=await res.json();
+  if(data.success){ showToast("Booking updated.","success"); closeModal("editBkModal"); loadBookings(); }
+  else showToast(data.error,"error");
+}
+
+async function deleteBooking(id){
+  if(!confirm(`Delete booking ${id}?`)) return;
+  const res=await fetch(`/api/bookings/${id}`,{method:"DELETE"});
+  const data=await res.json();
+  if(data.success){ showToast("Booking deleted.","success"); loadBookings(); }
+  else showToast(data.error,"error");
+}
+
+function closeModal(id){ document.getElementById(id).classList.add("hidden"); }
+
+loadBookings();
+setInterval(loadBookings, 10000);
+</script>
+{% endblock %}
+```plaintext
+
+---
